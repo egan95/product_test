@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Mail\SendEmail;
+use App\Mail\SendEmailCustomer;
+use App\Mail\SendEmailAdmin;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -80,24 +82,26 @@ class InquiryController extends Controller
         //send email to user
         $link_inquiry = url('inquiry/detail/'.$inquiry->token);
 
-        $body_email = view('email.customer_inquiry',['contact_person'=>$contact_person, 'link_inquiry' => $link_inquiry])->render();
-
         $param = (object) [
             'subject' => "Thank you for inquiry",
-            'body' => $body_email
+            //'body' => $body_email,
+            'contact_person'=>$contact_person, 
+            'link_inquiry' => $link_inquiry
         ];
-        Mail::to($email)->send(new SendEmail($param));
+        Mail::to($email)->send(new SendEmailCustomer($param));
 
         //get list data admin
         $data_user = User::where('role','admin')->get();
         foreach ($data_user as $key => $value) {
-            $body_email = view('email.admin_inquiry',['email'=>$email, 'link_inquiry' => $link_inquiry,'min_order' => $min_order,'type' => $type])->render();
-
             $param = (object) [
                 'subject' => "A new inquiry received",
-                'body' => $body_email
+                //'body' => $body_email
+                'email'=>$email,
+                'link_inquiry' => $link_inquiry,
+                'min_order' => $min_order,
+                'type' => $type
             ];
-            Mail::to($value->email)->send(new SendEmail($param));
+            Mail::to($value->email)->send(new SendEmailAdmin($param));
         }
 
         return response()->json(['status'=>'success', 'data'=> $inquiry, 'message'=>'Inquiry has been submitted']);
