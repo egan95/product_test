@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InquiryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/',[HomeController::class, 'index'])->name('home');
+Route::prefix('inquiry')->group(function () {
+    Route::post('/store',[InquiryController::class, 'store']);
+    Route::get('/detail/{uuid}',[InquiryController::class, 'detail']);
 });
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
