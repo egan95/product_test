@@ -79,16 +79,8 @@ class InquiryController extends Controller
 
         //send email to user
         $link_inquiry = url('inquiry/detail/'.$inquiry->token);
-        $body_email = '
-            Hi '.$contact_person.',<br>
-            <p>
-            Thank you for sending us <a target="_blank" href="'.$link_inquiry.'">your inquiry.</a><br>
-            Our team will review this and get in touch with you soon.<br>
-            If you have any more questions or come across any other issue, let us know, we will be happy to help.<br>
-            Have a great day,
-            </p>
-            <p style="margin-top:50px">Unique Jewelry</p>
-        ';
+
+        $body_email = view('email.customer_inquiry',['contact_person'=>$contact_person, 'link_inquiry' => $link_inquiry])->render();
 
         $param = (object) [
             'subject' => "Thank you for inquiry",
@@ -99,13 +91,7 @@ class InquiryController extends Controller
         //get list data admin
         $data_user = User::where('role','admin')->get();
         foreach ($data_user as $key => $value) {
-            $body_email = '
-                <p>
-                We got an inquiry from '.$email.'.<br>
-                The customer want '.$type.' with minimum order '.$min_order.' pieces.<br>
-                This is the link to <a target="_blank" href="'.$link_inquiry.'">the detail.</a>
-                </p>
-            ';
+            $body_email = view('email.admin_inquiry',['email'=>$email, 'link_inquiry' => $link_inquiry,'min_order' => $min_order,'type' => $type])->render();
 
             $param = (object) [
                 'subject' => "A new inquiry received",
